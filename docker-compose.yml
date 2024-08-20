@@ -1,0 +1,146 @@
+
+version: '3.8'
+
+services:
+
+  gateway:
+    image: openmrs/openmrs-reference-application-3-gateway:${TAG:-qa}
+    restart: "unless-stopped"
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+
+  frontend:
+    image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
+    build:
+      context: ./openmrs/frontend
+    restart: "unless-stopped"
+    environment:
+      SPA_PATH: /openmrs/spa
+      API_URL: /openmrs
+      SPA_CONFIG_URLS: /openmrs/spa/config-core_demo.json
+      SPA_DEFAULT_LOCALE:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      timeout: 5s
+    depends_on:
+      - backend
+
+  backend:
+    image: openmrs/openmrs-reference-application-3-backend:${TAG:-qa}
+    restart: "unless-stopped"
+    build:
+      context: ./openmrs
+    depends_on:
+      - db
+    environment:
+      OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
+      OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CONFIG_CREATE_TABLES: "true"
+      OMRS_CONFIG_CONNECTION_SERVER: db
+      OMRS_CONFIG_CONNECTION_DATABASE: openmrs
+      OMRS_CONFIG_CONNECTION_USERNAME: ${OPENMRS_DB_USER:-openmrs}
+      OMRS_CONFIG_CONNECTION_PASSWORD: ${OPENMRS_DB_PASSWORD:-openmrs}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs"]
+      timeout: 5s
+    volumes:
+      - openmrs-data:/openmrs/data
+
+  # MariaDB
+  db:
+    image: mariadb:10.11.7
+    restart: "unless-stopped"
+    command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci"
+    healthcheck:
+      test: "mysql --user=${OMRS_DB_USER:-openmrs} --password=${OMRS_DB_PASSWORD:-openmrs} --execute \"SHOW DATABASES;\""
+      interval: 3s
+      timeout: 1s
+      retries: 5
+    environment:
+      MYSQL_DATABASE: openmrs
+      MYSQL_USER: ${OMRS_DB_USER:-openmrs}
+      MYSQL_PASSWORD: ${OMRS_DB_PASSWORD:-openmrs}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openmrs}
+    volumes:
+      - db-data:/var/lib/mysql
+
+
+#OpenHIM -IOL
+  mongo:
+    container_name: openhim-mongo
+    ports:
+      - "27018:27017"
+    image: mongo:3.4
+    networks:
+      - hie
+      
+  openhim-core:
+    container_name: openhim-core
+    image: jembi/openhim-core:v7.1.0
+    restart: unless-stopped
+    environment:
+      - mongo_url=mongodb://mongo/openhim
+      - mongo_atnaUrl=mongodb://mongo/openhim
+    healthcheck:
+      test: "node /healthcheck.js"
+      interval: 20s
+      timeout: 20s
+      retries: 2
+    volumes:
+      - ./configs/openhim/healthcheck.js:/healthcheck.js
+    depends_on:
+      - mongo
+    ports:
+      - "8085:8080"
+      - "5000:5000"
+      - "5001:5001"
+      - "5050:5050"
+      - "5051:5051"
+      - "5052:5052"
+      - "7788:7788"       
+    networks:
+      - hie
+
+  openhim-console:
+    container_name: openhim-console
+    image: jembi/openhim-console:v1.15.0
+    volumes:
+      - ./configs/openhim-console/default-local.json:/usr/share/nginx/html/config/default.json
+    healthcheck:
+      test: "curl -sS http://openhim-console || exit 1"
+      interval: 10s
+      timeout: 60s
+      retries: 3
+    ports:
+        - "9000:80"
+    networks:
+      - hie
+
+  # Loads Default OpenHIM Config
+  openhim-config:
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
+    networks:
+      - hie
+
+secrets:
+  datasource.password:
+    file: ./configs/openelis/properties/datasource.password
+  common.properties:
+    file: ./configs/openelis/properties/common.properties
+
+volumes:
+  key_trust-store-volume:
+  certs-vol:
+  certs:
+  keys-vol:       
+  openmrs-data: ~
+  db-data: ~
+
+networks:
+  hie:
