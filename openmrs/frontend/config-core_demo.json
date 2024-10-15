@@ -1,6 +1,79 @@
 {
+  "@openmrs/esm-patient-registration-app": {
+    "defaultPatientIdentifierTypes": [
+      "8e93b963-4491-449a-b42c-91eb9582cdcf"
+    ]
+  },
   "@openmrs/esm-patient-chart-app": {
-    "showUpcomingAppointments": true
+    "showUpcomingAppointments": true,
+    "extensionSlots": {
+      "patient-chart-allergies-dashboard-slot": {
+        "add": ["obs-by-encounter-widget#hiv", "obs-by-encounter-widget#diabetes"],
+        "configure": {
+          "obs-by-encounter-widget#hiv": {
+            "title": "HIV Widget",
+            "resultName": "HIV",
+            "data": [
+              {
+                "concept": "5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "label": "sodium",
+                "color": "green"
+              },
+              {
+                "concept": "5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "label": "Viral load",
+                "color": "red"
+              }
+            ],
+            "table": {
+              "pageSize": 5
+            }
+          }
+        }
+      },
+      "patient-chart-summary-dashboard-slot": {
+        "add": [
+          "obs-by-encounter-widget#consultation"
+        ],
+        "order": [
+          "obs-by-encounter-widget#consultation"
+        ],
+        "configure": {
+          "obs-by-encounter-widget#consultation": {
+            "title": "Motif de consultation",
+            "showGraphByDefault": true,
+            "encounterTypes": [
+              "f9fdbe63-12b4-479f-b8fd-dcbfde6aa944"
+            ],
+            "Display conditions": {
+              "privileges": [
+                "Add Users"
+              ]
+            },
+            "data": [
+              {
+                "label": "MCV (fl)",
+                "concept": "851AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "color": "blue"
+              },
+              {
+                "label": "Hemoglobin",
+                "concept": "21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "color": "green"
+              },
+              {
+                "label": "Neutrophils",
+                "concept": "1022AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "color": "green"
+              }
+            ],
+            "table": {
+              "pageSize": 6
+            }
+          }
+        }
+      }
+    }
   },
   "@openmrs/esm-service-queues-app": {
     "priorityConfigs": [

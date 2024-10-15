@@ -11,6 +11,8 @@ services:
       - backend
     ports:
       - "80:80"
+    networks:
+      - hie
 
   frontend:
     image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
@@ -27,6 +29,8 @@ services:
       timeout: 5s
     depends_on:
       - backend
+    networks:
+      - hie
 
   backend:
     image: openmrs/openmrs-reference-application-3-backend:${TAG:-qa}
@@ -48,6 +52,8 @@ services:
       timeout: 5s
     volumes:
       - openmrs-data:/openmrs/data
+    networks:
+      - hie
 
   # MariaDB
   db:
@@ -66,7 +72,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-openmrs}
     volumes:
       - db-data:/var/lib/mysql
-
+    networks:
+      - hie
 
 #OpenHIM -IOL
   mongo:

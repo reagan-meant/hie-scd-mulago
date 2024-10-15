@@ -1,5 +1,14 @@
 {
   "name": "SCD ROUTINE VISIT FORM",
+  "processor": "EncounterFormProcessor",
+  "encounter": "Consultation",
+  "referencedForms": [],
+  "uuid": "a51ed143-2686-4827-991f-9a142af9f72d",
+  "description": "Uganda National Sickle Cell Program",
+  "version": "1.0",
+  "published": true,
+	"retired": false,
+  "encounterType": "dd528487-82a5-4082-9c72-ed246bd49591",
   "pages": [
     {
       "label": "SCD ROUTINE VISIT FORM",
@@ -1951,12 +1960,5 @@
         }
       ]
     }
-  ],
-  "processor": "EncounterFormProcessor",
-  "encounter": "Consultation",
-  "referencedForms": [],
-  "uuid": "a51ed143-2686-4827-991f-9a142af9f72d",
-  "description": "Uganda National Sickle Cell Program",
-  "version": "1.0",
-  "encounterType": "dd528487-82a5-4082-9c72-ed246bd49591"
+  ]
 }
