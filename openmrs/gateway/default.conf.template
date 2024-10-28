@@ -19,6 +19,11 @@ map $forwarded_proto $var_proxy_cookie_flags {
   default "off";
 }
 
+map $request_uri $js_content_type {
+    ~\.js$       "application/javascript";
+    default      $sent_http_content_type;
+}
+
 upstream frontend {
   # always assume the frontend will be available
   server frontend max_fails=0;
@@ -95,6 +100,13 @@ server {
 
   location = / {
     return 301 /openmrs/spa/;
+  }
+
+  location /openmrs {
+    proxy_pass http://backend;
+    proxy_pass_header Content-Type;
+    
+    add_header Content-Type $js_content_type;
   }
 
   location /openhim {
