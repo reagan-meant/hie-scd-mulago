@@ -117,10 +117,6 @@ server {
     proxy_redirect http://$host/ /openmrs/spa/;
   }
 
-  location /openmrs {
-    proxy_pass http://backend;
-  }
-
   location = / {
     return 301 /openmrs/spa/;
   }
@@ -128,7 +124,6 @@ server {
   location /openmrs {
     proxy_pass http://backend;
     proxy_pass_header Content-Type;
-    
     add_header Content-Type $js_content_type;
   }
 
