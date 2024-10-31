@@ -2,15 +2,33 @@
 version: '3.8'
 
 services:
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    depends_on:
+      - gateway
+    command: >-
+             certonly --reinstall --webroot --webroot-path=/var/www/certbot
+             --email ${EMAIL} --agree-tos --no-eff-email
+             -d ${DOMAIN}
+    volumes:
+      - ./openmrs/gateway/etc/letsencrypt:/etc/letsencrypt
+      - ./certbot/data:/var/www/certbot
 
   gateway:
     image: openmrs/openmrs-reference-application-3-gateway:${TAG:-qa}
     restart: "unless-stopped"
+    environment:
+      - DOMAIN    
     depends_on:
       - frontend
       - backend
     ports:
       - "80:80"
+      - "443:443"  # Added HTTPS port
+    volumes:
+      - ./openmrs/gateway/templates:/etc/nginx/templates:ro #Image already adds it
+      - ./openmrs/gateway/etc/letsencrypt:/etc/letsencrypt:ro      
     networks:
       - hie
 
