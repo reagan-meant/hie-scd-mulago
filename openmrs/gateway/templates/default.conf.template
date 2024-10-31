@@ -5,10 +5,7 @@ map $request_uri $csp_header {
   "~^/openhim/" "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss:; base-uri 'self'; font-src 'self'; img-src 'self' data:; frame-ancestors 'self' ${FRAME_ANCESTORS};";
   "~^/core/" "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss:; base-uri 'self'; font-src 'self'; img-src 'self' data:; frame-ancestors 'self' ${FRAME_ANCESTORS};";
   "~^/core-https/" "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss:; base-uri 'self'; font-src 'self'; img-src 'self' data:; frame-ancestors 'self' ${FRAME_ANCESTORS};";
-
-
-
-
+  "~^/heartbeat/" "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss:; base-uri 'self'; font-src 'self'; img-src 'self' data:; frame-ancestors 'self' ${FRAME_ANCESTORS};";
 
 }
 
@@ -153,12 +150,19 @@ server {
     return 301 /openhim/;
   }
 
-# OpenHIM Core API
-  location /core/ {
+  location /heartbeat/ {
     proxy_pass http://openhim-core-api/;
+    proxy_ssl_verify off;  # If using self-signed certificates
     proxy_pass_header Content-Type;
     add_header Content-Type $js_content_type;
-  }    
+  }
+
+  location /core/ {
+    proxy_pass http://openhim-core-api/;
+    proxy_ssl_verify off;  # If using self-signed certificates
+    proxy_pass_header Content-Type;
+    add_header Content-Type $js_content_type;
+  }
 
   location /core-https/ {
     proxy_pass https://openhim-core-https/;
