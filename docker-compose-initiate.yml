@@ -8,8 +8,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./gateway/templates-initiate:/etc/nginx/templates
-      - ./gateway/etc/letsencrypt:/etc/letsencrypt
+      - ./openmrs/gateway/templates-initiate:/etc/nginx/templates
+      - ./openmrs/gateway/etc/letsencrypt:/etc/letsencrypt
       - ./certbot/data:/var/www/certbot
 
   certbot:
